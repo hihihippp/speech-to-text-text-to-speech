@@ -11,17 +11,16 @@ read_stdin() {
 urlencode() {
     /usr/bin/env python2 <<EOF
 # coding=utf-8
-import urllib, sys
-words='''$1'''.split()
-line=""
-for word in words:
-    word+=" "
-    if len(word) + len(line) >= 100:
-        sys.stdout.write(urllib.quote(line) + ' ')
-        line=word
-    else:
-        line+=word
-sys.stdout.write(urllib.quote(line))
+import urllib, re
+buffer = ''
+for chunk in re.split('[\n\r\s]', '''$1'''):
+    for smallChunk in [chunk[i:i+100] for i in range(0, len(chunk), 100)]:
+        if len(buffer) + len(smallChunk) > 100:
+            print(urllib.quote(buffer))
+            buffer = smallChunk + ' '
+        else:
+            buffer += smallChunk + ' '
+print(urllib.quote(buffer))
 EOF
 }
 
@@ -34,9 +33,9 @@ which curl &>/dev/null || {
 echo "error: curl not installed"
 exit 1
 }
-
 trap "rm -f $STOCK" EXIT
 for chunk in $(urlencode "$(read_stdin)"); do
     curl -s -A Mozilla -o "$STOCK" "${URL}${chunk}"
     mpg123 "$STOCK" &>/dev/null
+    rm -f "$STOCK"
 done

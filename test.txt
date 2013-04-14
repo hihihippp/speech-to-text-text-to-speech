@@ -1,2 +1,3 @@
-設定
+As you can see in the 'desc' column, the text is of variable length (meaning no two strings I pull from this database are going to be of the same length). I will eventually add many more entries to this database, but this is what I'm testing with and starting with at the moment.
 
+Right now, I have the following python code to grab these blocks of string and display them:
