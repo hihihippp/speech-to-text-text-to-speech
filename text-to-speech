@@ -1,14 +1,18 @@
 #!/bin/bash
 
-readonly LNG=${LNG:=en_US}
+readonly LNG=${1:-en_US}
 readonly URL="http://translate.google.com/translate_tts?ie=UTF-8&tl=${LNG}&q="
 readonly STOCK="${HOME}/.${0##*/}"
 
+read_stdin() {
+    cat /dev/stdin 
+}
+
 urlencode() {
-    python2 <<EOF
+    /usr/bin/env python2 <<EOF
 # coding=utf-8
 import urllib, sys
-words='''$*'''.split()
+words='''$1'''.split()
 line=""
 for word in words:
     word+=" "
@@ -31,8 +35,8 @@ echo "error: curl not installed"
 exit 1
 }
 
-for chunk in $(urlencode "$@"); do
-    curl -s -A Mozilla -o "${STOCK}" "${URL}${chunk}"
-    mpg123 "${STOCK}" &>/dev/null
-    rm -f "${STOCK}"
+trap "rm -f $STOCK" EXIT
+for chunk in $(urlencode "$(read_stdin)"); do
+    curl -s -A Mozilla -o "$STOCK" "${URL}${chunk}"
+    mpg123 "$STOCK" &>/dev/null
 done

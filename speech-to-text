@@ -1,13 +1,15 @@
 #!/bin/bash
 
-[[ "$1" =~ [0-9]+ ]] || exit 1
-readonly LNG=${LNG:=en_US}
+readonly LNG=${1:-en_US}
+readonly DELAY=${2:-4}
+[[ "$DELAY" =~ [0-9]+ ]] || exit 1
 readonly URL="http://www.google.com/speech-api/v1/recognize?lang=${LNG}&client=chromium"
 readonly STOCK="${HOME}/.${0##*/}"
 readonly HEADER='Content-Type: audio/x-flac; rate=16000;'
 
-arecord -t wav -d "$1" "${STOCK}.wav" &>/dev/null
-sox "${STOCK}.wav" "${STOCK}.flac" rate 16k
+trap 'rm -f "${STOCK}.flac"' EXIT
+arecord -t wav -d "$DELAY" "${STOCK}.wav" -r 16000 &>/dev/null
+flac -o "${STOCK}.flac" --delete-input-file "${STOCK}.wav" &>/dev/null
 ret="$(curl -s -A Mozilla --data-binary "@${STOCK}.flac" --header "$HEADER"  "$URL" | \
     jshon -e hypotheses -e 0 -e utterance -u 2>/dev/null)"
 if [ "$ret" != "" ]; then
@@ -15,5 +17,4 @@ if [ "$ret" != "" ]; then
 else
     echo "cannot recognize"
 fi
-rm -f "${STOCK}."{wav,flac}
 
