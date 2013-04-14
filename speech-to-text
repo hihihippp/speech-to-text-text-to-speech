@@ -1,0 +1,19 @@
+#!/bin/bash
+
+[[ "$1" =~ [0-9]+ ]] || exit 1
+readonly LNG=${LNG:=en_US}
+readonly URL="http://www.google.com/speech-api/v1/recognize?lang=${LNG}&client=chromium"
+readonly STOCK="${HOME}/.${0##*/}"
+readonly HEADER='Content-Type: audio/x-flac; rate=16000;'
+
+arecord -t wav -d "$1" "${STOCK}.wav" &>/dev/null
+sox "${STOCK}.wav" "${STOCK}.flac" rate 16k
+ret="$(curl -s -A Mozilla --data-binary "@${STOCK}.flac" --header "$HEADER"  "$URL" | \
+    jshon -e hypotheses -e 0 -e utterance -u 2>/dev/null)"
+if [ "$ret" != "" ]; then
+    echo "$ret"
+else
+    echo "cannot recognize"
+fi
+rm -f "${STOCK}."{wav,flac}
+
