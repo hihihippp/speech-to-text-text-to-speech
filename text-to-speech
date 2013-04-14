@@ -14,8 +14,8 @@ urlencode() {
 import urllib, re
 buffer = ''
 for chunk in re.split('[\n\r\s]', '''$1'''):
-    for smallChunk in [chunk[i:i+100] for i in range(0, len(chunk), 100)]:
-        if len(buffer) + len(smallChunk) > 100:
+    for smallChunk in [chunk[i:i+99] for i in range(0, len(chunk), 99)]:
+        if len(buffer) + len(smallChunk) > 99:
             print(urllib.quote(buffer))
             buffer = smallChunk + ' '
         else:
