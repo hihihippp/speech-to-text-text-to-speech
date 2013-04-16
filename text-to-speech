@@ -9,18 +9,18 @@ read_stdin() {
 }
 
 urlencode() {
-    /usr/bin/env python2 <<EOF
+    /usr/bin/env python3 <<EOF
 # coding=utf-8
-import urllib, re
+import urllib.parse, re
 buffer = ''
 for chunk in re.split('[\n\r\s]', '''$1'''):
     for smallChunk in [chunk[i:i+99] for i in range(0, len(chunk), 99)]:
         if len(buffer) + len(smallChunk) > 99:
-            print(urllib.quote(buffer))
+            print(urllib.parse.quote(buffer))
             buffer = smallChunk + ' '
         else:
             buffer += smallChunk + ' '
-print(urllib.quote(buffer))
+print(urllib.parse.quote(buffer))
 EOF
 }
 
