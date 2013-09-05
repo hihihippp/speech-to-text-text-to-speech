@@ -1,0 +1,30 @@
+#!/bin/bash
+echo "any task" | text-to-speech
+res="$(speech-to-text en_US -d3)" 
+echo "$res"
+case "$res" in
+    Facebook)
+        echo "I will open facebook for you" | text-to-speech
+        xdg-open "http://facebook.com/"
+        ;;
+    *mail)
+        echo "I will open gmail for you" | text-to-speech
+        xdg-open "http://gmail.com/"
+        ;;
+    say*)
+        word="$(echo "$res" | cut -d ' ' -f 2-)"
+        echo "$word from $(whoami) $(hostname)" | text-to-speech
+        ;;
+    "cannot recognize")
+        echo ignored | text-to-speech
+        ;;
+    where*)
+        word="$(echo "$res" | cut -d ' ' -f 3-)"
+        echo "searching location for $word" | text-to-speech
+        xdg-open "http://maps.google.com/maps?q=$word"
+        ;;
+    *)
+        echo "I am searching $res on google" | text-to-speech
+        xdg-open "http://www.google.com/search?btnG=1&pws=0&q=$res"
+        ;;
+esac

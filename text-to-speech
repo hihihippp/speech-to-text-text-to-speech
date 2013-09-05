@@ -1,41 +1,12 @@
 #!/bin/bash
 
 readonly LNG=${1:-en_US}
-readonly URL="http://translate.google.com/translate_tts?ie=UTF-8&tl=${LNG}&q="
-readonly STOCK="${HOME}/.${0##*/}"
-
-read_stdin() {
-    cat /dev/stdin 
-}
+readonly URL="http://translate.google.com/translate_tts?ie=UTF-8&tl=$LNG&q="
 
 urlencode() {
-    /usr/bin/env python3 <<EOF
-# coding=utf-8
-import urllib.parse, re
-buffer = ''
-for chunk in re.split('[\n\r\s]', '''$1'''):
-    for smallChunk in [chunk[i:i+99] for i in range(0, len(chunk), 99)]:
-        if len(buffer) + len(smallChunk) > 99:
-            print(urllib.parse.quote(buffer))
-            buffer = smallChunk + ' '
-        else:
-            buffer += smallChunk + ' '
-print(urllib.parse.quote(buffer))
-EOF
+    perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$*"
 }
 
-which mpg123 &>/dev/null || {
-echo "error: mpg123 not installed"
-exit 1
-}
-
-which curl &>/dev/null || {
-echo "error: curl not installed"
-exit 1
-}
-trap "rm -f $STOCK" EXIT
-for chunk in $(urlencode "$(read_stdin)"); do
-    curl -s -A Mozilla -o "$STOCK" "${URL}${chunk}"
-    mpg123 "$STOCK" &>/dev/null
-    rm -f "$STOCK"
-done
+while read -n 100 chunk; do
+    mpg123 "$URL$(urlencode $chunk)" 2>/dev/null
+done </dev/stdin
