@@ -12,14 +12,14 @@ case "$res" in
         xdg-open "http://gmail.com/"
         ;;
     say*)
-        word="$(echo "$res" | cut -d ' ' -f 2-)"
+        word="$(cut -d ' ' -f 2- <<<"$res")"
         echo "$word from $(whoami) $(hostname)" | text-to-speech
         ;;
     "cannot recognize")
         echo ignored | text-to-speech
         ;;
     where*)
-        word="$(echo "$res" | cut -d ' ' -f 3-)"
+        word="$(cut -d ' ' -f 3- <<<"$res")"
         echo "searching location for $word" | text-to-speech
         xdg-open "http://maps.google.com/maps?q=$word"
         ;;
