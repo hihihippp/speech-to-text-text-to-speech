@@ -9,4 +9,4 @@ urlencode() {
 
 while read -n 100 -r chunk; do
     mpg123 "$URL$(urlencode $chunk)" 2>/dev/null
-done </dev/stdin
+done

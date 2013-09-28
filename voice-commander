@@ -1,30 +1,30 @@
 #!/bin/bash
-echo "any task" | text-to-speech
-res="$(speech-to-text en_US -d3)" 
+text-to-speech <<<"any task"
+res="$(speech-to-text en_US -d5)" 
 echo "$res"
 case "$res" in
     Facebook)
-        echo "I will open facebook for you" | text-to-speech
+        text-to-speech <<<"I will open facebook for you"
         xdg-open "http://facebook.com/"
         ;;
-    *mail)
-        echo "I will open gmail for you" | text-to-speech
+    Gmail)
+        text-to-speech <<<"I will open gmail for you"
         xdg-open "http://gmail.com/"
         ;;
     say*)
         word="$(cut -d ' ' -f 2- <<<"$res")"
-        echo "$word from $(whoami) $(hostname)" | text-to-speech
+        text-to-speech <<<"$word from $(whoami) $(hostname)"
         ;;
     "cannot recognize")
-        echo ignored | text-to-speech
+        text-to-speech <<<"I dont know what you mean"
         ;;
-    where*)
+    "where is"*)
         word="$(cut -d ' ' -f 3- <<<"$res")"
-        echo "searching location for $word" | text-to-speech
+        text-to-speech <<<"searching location for $word"
         xdg-open "http://maps.google.com/maps?q=$word"
         ;;
     *)
-        echo "I am searching $res on google" | text-to-speech
+        text-to-speech <<<"I am searching $res on google"
         xdg-open "http://www.google.com/search?btnG=1&pws=0&q=$res"
         ;;
 esac

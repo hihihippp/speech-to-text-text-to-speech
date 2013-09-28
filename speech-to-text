@@ -2,7 +2,7 @@
 readonly LNG=${1:-en_US}
 readonly URL="http://www.google.com/speech-api/v1/recognize?lang=$LNG&client=chromium"
 
-arecord $2 -r16000 -c2 -f S16_LE -t wav voice.wav 2>/dev/null
+arecord "${@:2}" -r16000 -c2 -f S16_LE -t wav voice.wav 2>/dev/null
 trap 'rm -f voice.flac' EXIT 
 flac -o voice.flac \
     --sample-rate=16000 \
@@ -10,7 +10,7 @@ flac -o voice.flac \
     --bps=16 \
     --endian=little \
     --delete-input-file voice.wav 2>/dev/null
-echo "okay." | text-to-speech
+text-to-speech <<<"okay"
 ret="$(curl -s -A Mozilla \
     --data-binary @voice.flac \
     --header 'Content-Type: audio/x-flac; rate=16000;' "$URL" \
